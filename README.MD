@@ -17,8 +17,8 @@
 ---
 ## 🖼 Images
 
-![Setup](images/setup.png)
-![Website-Smartphone](images/site.png)
+![Setup](images/setup.jpeg)
+![Website-Smartphone](images/site.jpeg)
 ---
 
 ## 🛠️ Hardware Requirements
