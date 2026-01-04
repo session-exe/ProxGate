@@ -25,6 +25,19 @@
 
 ---
 
+## 😎 Recommendations
+
+### Operating System
+* **Raspberry Pi OS Lite (64-bit)**: Highly recommended for better memory management and performance on the Zero 2W.
+
+### Pre-Configuration
+Before flashing your SD card with **Raspberry Pi Imager**, use the **Advanced Options**:
+1. **Enable SSH**: Use password authentication.
+2. **Set Username/Password**: Create your user credentials.
+3. **Configure Wi-Fi**: Set your home Wi-Fi so you can SSH into the Pi immediately after boot.
+
+---
+
 ## 📦 Installation
 
 Simply clone this repository to your Raspberry Pi and run the automated installer:
