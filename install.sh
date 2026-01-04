@@ -69,10 +69,10 @@ echo -e "${RED}WARNING: Enabling the Hotspot will terminate your current SSH ses
 read -p "Do you want to enable the Wi-Fi Hotspot (Offline Mode) now? (y/n): " choice
 
 if [[ "$choice" =~ ^[Yy]$ ]]; then
-    read -p "Set Network Name (SSID) [ProxGate_Zero]: " ssid
-    ssid=${ssid:-"ProxGate_Zero"}
-    read -p "Set Password (min. 8 chars) [pwned1234]: " pass
-    pass=${pass:-"pwned1234"}
+    read -p "Set Network Name (SSID) [ProxGate]: " ssid
+    ssid=${ssid:-"ProxGate"}
+    read -p "Set Password (min. 8 chars) [eugostodenestum]: " pass
+    pass=${pass:-"eugostodenestum"}
 
     echo -e "${GREEN}[*] Configuring Hotspot... SSH connection will drop now.${NC}"
     sudo nmcli device wifi hotspot ssid "$ssid" password "$pass"
@@ -83,5 +83,5 @@ fi
 
 echo -e "\n${BLUE}==============================================${NC}"
 echo -e "${GREEN}       INSTALLATION COMPLETED SUCCESSFULLY!  ${NC}"
-echo -e "${BLUE}  Access: http://<pi_ip> or http://10.42.0.1    ${NC}"
+echo -e "${BLUE}  Access: http://<your-raspberry-pi-ip> or http://10.42.0.1    ${NC}"
 echo -e "${BLUE}==============================================${NC}"
