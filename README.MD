@@ -20,8 +20,8 @@
 
 * **Raspberry Pi Zero 2W** (Heatsinks highly recommended).
 * **Proxmark3 Easy / RDV4** (Running Iceman firmware).
-* **Power Bank** (Capable of providing at least 5V 2.4A).
-* **Micro-SD Card** (16GB or larger, Class 10).
+* **Power Bank** (Capable of providing at least 5V 2A).
+* **Micro USB OTG Cable** (so you can connect your Proxmark to your Pi Zero 2W).
 
 ---
 
@@ -44,7 +44,7 @@ The installer will guide you through the process, including an optional tactical
 ## 🖥️ Usage
 
 1. **Power:** Connect your Proxmark3 to the Raspberry Pi and plug the Pi into a power source.
-2. **Connect:** On your smartphone, join the Wi-Fi network (default: `ProxGate_Zero`).
+2. **Connect:** On your smartphone, join the Wi-Fi network (default: `ProxGate`).
 3. **Access:** Open your browser and go to `http://10.42.0.1` (or the Pi's local IP).
 4. **Execute:** Use the macro buttons for quick actions or type custom commands in the terminal input.
 
