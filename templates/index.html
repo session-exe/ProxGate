@@ -5,17 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ProxGate</title>
     <style>
-        body { background: #000; color: #00ff41; font-family: 'Courier New', monospace; margin: 0; padding: 10px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
+        body { background: #000; color: #00ff41; font-family: 'Courier New', monospace; margin: 0; padding: 10px; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
         
-        #terminal { flex-grow: 1; background: #050505; border: 1px solid #554b4b; overflow-y: auto; padding: 10px; font-size: 12px; border-radius: 8px; margin-bottom: 10px; }
+        #terminal { height: 40vh; background: #050505; border: 1px solid #554b4b; overflow-y: auto; padding: 10px; font-size: 12px; border-radius: 8px; margin-bottom: 10px; }
         
         .input-area { display: flex; gap: 5px; margin-bottom: 10px; }
-        input { flex-grow: 1; background: #111; border: 1px solid #00ff41; color: #fff; padding: 12px; border-radius: 5px; outline: none; }
+        input { flex-grow: 1; background: #111; border: 1px solid #00ff41; color: #fff; padding: 12px; border-radius: 5px; outline: none; font-family: inherit; }
         .btn-enter { background: #00ff41; color: #000; border: none; padding: 0 20px; font-weight: bold; border-radius: 5px; }
 
-        .button-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 5px; }
-        .macro-btn { background: #111; border: 1px solid #333; color: #00ff41; padding: 10px; font-size: 11px; border-radius: 5px; font-weight: bold; }
+        .button-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px; }
+        .macro-btn { background: #111; border: 1px solid #333; color: #00ff41; padding: 10px; font-size: 10px; border-radius: 5px; font-weight: bold; text-align: left; }
         .macro-btn:active { background: #00ff41; color: #000; }
+
+        .dump-section { background: #080808; border: 1px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 20px; flex-grow: 0; }
+        .dump-header { font-size: 11px; font-weight: bold; border-bottom: 1px dashed #333; padding-bottom: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .file-list { max-height: 150px; overflow-y: auto; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
+        .file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
+        .download-link { color: #000; background: #00ff41; text-decoration: none; padding: 4px 8px; border-radius: 3px; font-weight: bold; font-size: 10px; }
 
         .cmd-line { color: #888; margin-top: 10px; border-left: 2px solid #00ff41; padding-left: 5px; }
         pre { white-space: pre-wrap; word-wrap: break-word; margin: 5px 0; color: #ccc; }
@@ -29,11 +36,10 @@
             border-top: 1px dashed #333; 
             letter-spacing: 1px;
             text-transform: uppercase;
+            padding: 10px 0;
+            margin-top: auto;
         }
-
-        .footer-section span {
-            font-weight: bold;
-        }
+        .footer-section span { font-weight: bold; }
     </style>
 </head>
 <body>
@@ -47,25 +53,59 @@
     </div>
 
     <div class="button-grid">
-        <button class="macro-btn" onclick="quickCmd('hw status')">HW Status - Checks if the PM3 is alive and displays voltage levels.</button>
-        <button class="macro-btn" onclick="quickCmd('hw tune')">Tune Ant - Tune the antenna for optimal performance.</button>
-        <button class="macro-btn" onclick="quickCmd('lf search')">LF Search - Automatic search for 125kHz tags.</button>
-        <button class="macro-btn" onclick="quickCmd('hf search')">HF Search - Automatic search for 13.56MHz tags.</button>
-        <button class="macro-btn" onclick="quickCmd('lf hid read')">LF HID Read - Reads HID Prox cards (common in offices).</button>
-        <button class="macro-btn" onclick="quickCmd('lf em 410x read')">LF EM Read - Reads typical blue Chinese keyfobs (EM410x).</button>
-        <button class="macro-btn" onclick="quickCmd('hf 14a info')">14A Info - Detailed information on ISO14443A cards.</button>
-        <button class="macro-btn" onclick="quickCmd('hf mf autopwn')">MF Autopwn - Attempts to automatically exploit Mifare Classic cards.</button>
-        <button class="macro-btn" onclick="quickCmd('hf mf chk * ?')">MF Check - Checks for weak keys on Mifare Classic cards.</button>
-        <button class="macro-btn" onclick="quickCmd('hf iclass info')">iClass Info - Detailed information on iClass cards.</button>
+        <button class="macro-btn" onclick="quickCmd('hw status')">HW Status - Info & Voltage</button>
+        <button class="macro-btn" onclick="quickCmd('hw tune')">Tune Ant - Antenna Tuning</button>
+        <button class="macro-btn" onclick="quickCmd('lf search')">LF Search - 125kHz Tags</button>
+        <button class="macro-btn" onclick="quickCmd('hf search')">HF Search - 13.56MHz Tags</button>
+        <button class="macro-btn" onclick="quickCmd('lf hid read')">LF HID Read - Office Cards</button>
+        <button class="macro-btn" onclick="quickCmd('lf em 410x read')">LF EM Read - Blue Fobs</button>
+        <button class="macro-btn" onclick="quickCmd('hf 14a info')">14A Info - ISO14443A</button>
+        <button class="macro-btn" onclick="quickCmd('hf mf autopwn')">MF Autopwn - Auto Exploit</button>
+        <button class="macro-btn" onclick="quickCmd('hf mf chk * ?')">MF Check - Weak Keys</button>
+        <button class="macro-btn" onclick="quickCmd('hf iclass info')">iClass Info - HID iClass</button>
     </div>
+
+    <div class="dump-section">
+        <div class="dump-header">
+            <span>SAVED DUMPS</span>
+            <span onclick="refreshFiles()" style="cursor:pointer; color:#00ff41;">[REFRESH]</span>
+        </div>
+        <div id="files" class="file-list">
+            <div style="color:#555; font-size:10px;">No files found yet...</div>
+        </div>
+    </div>
+
+    <footer class="footer-section">
+        <p>Made with 💖 and responsibility by <span>session.exe</span></p>
+    </footer>
 
     <script>
         const consoleDiv = document.getElementById('terminal');
         const input = document.getElementById('cmdInput');
+        const fileDiv = document.getElementById('files');
 
         function quickCmd(cmd) {
             input.value = cmd;
             send();
+        }
+
+        async function refreshFiles() {
+            try {
+                const response = await fetch('/files');
+                const files = await response.json();
+                if (files.length === 0) {
+                    fileDiv.innerHTML = '<div style="color:#555; font-size:10px;">No files found yet...</div>';
+                    return;
+                }
+                fileDiv.innerHTML = files.map(f => `
+                    <div class="file-item">
+                        <span class="file-name">${f}</span>
+                        <a href="/download/${f}" class="download-link" download>GET</a>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error("Error refreshing files:", e);
+            }
         }
 
         async function send() {
@@ -84,13 +124,13 @@
             const data = await response.json();
             consoleDiv.innerHTML += `<pre>${data.output}</pre>`;
             consoleDiv.scrollTop = consoleDiv.scrollHeight;
+
+            setTimeout(refreshFiles, 1000);
         }
 
         input.addEventListener("keypress", (e) => { if(e.key === "Enter") send(); });
-    </script>
 
+        window.onload = refreshFiles;
+    </script>
 </body>
-<footer class="footer-section">
-    <p>Made with 💖 and responsibility by <span>session.exe</span></p>
-</footer>
 </html>
