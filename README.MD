@@ -15,6 +15,11 @@
 * **Persistent Service:** Automatically starts the web interface on boot.
 
 ---
+## 🖼 Images
+
+
+
+---
 
 ## 🛠️ Hardware Requirements
 
