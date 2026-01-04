@@ -5,131 +5,152 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ProxGate</title>
     <style>
-        body { background: #000; color: #00ff41; font-family: 'Courier New', monospace; margin: 0; padding: 10px; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
+
+        * { box-sizing: border-box; }
+
+        body { background: #000; color: #00ff41; font-family: 'Courier New', monospace; margin: 0; padding: 10px; display: flex; flex-direction: column; min-height: 100vh; }
         
-        #terminal { height: 40vh; background: #050505; border: 1px solid #554b4b; overflow-y: auto; padding: 10px; font-size: 12px; border-radius: 8px; margin-bottom: 10px; }
+        .console { height: 35vh; background: #050505; border: 1px solid #554b4b; overflow-y: auto; padding: 10px; font-size: 11px; border-radius: 8px; margin-bottom: 10px; display: none; }
+        .active-console { display: block; }
+
+        .input-area { display: flex; gap: 8px; margin-bottom: 10px; height: 45px; }
         
-        .input-area { display: flex; gap: 5px; margin-bottom: 10px; }
-        input { flex-grow: 1; background: #111; border: 1px solid #00ff41; color: #fff; padding: 12px; border-radius: 5px; outline: none; font-family: inherit; }
-        .btn-enter { background: #00ff41; color: #000; border: none; padding: 0 20px; font-weight: bold; border-radius: 5px; }
+        input, .btn-enter, .mode-toggle { height: 100%; margin: 0; border-radius: 5px; font-size: 14px; font-family: inherit; outline: none; }
+
+        input { flex-grow: 1; background: #111; border: 1px solid #00ff41; color: #fff; padding: 0 10px; min-width: 0; }
+
+        .btn-enter { background: #00ff41; color: #000; border: 1px solid #00ff41; padding: 0 15px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
+        
+        .mode-toggle { padding: 0 15px; font-weight: bold; text-align: center; border: 1px solid #333; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; white-space: nowrap; user-select: none; }
+
+        .mode-pm3 { background: #003300; color: #00ff41; border-color: #00ff41; }
+        .mode-sys { background: #331a00; color: #ff9900; border-color: #ff9900; }
 
         .button-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px; }
         .macro-btn { background: #111; border: 1px solid #333; color: #00ff41; padding: 10px; font-size: 10px; border-radius: 5px; font-weight: bold; text-align: left; }
         .macro-btn:active { background: #00ff41; color: #000; }
 
-        .dump-section { background: #080808; border: 1px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 20px; flex-grow: 0; }
-        .dump-header { font-size: 11px; font-weight: bold; border-bottom: 1px dashed #333; padding-bottom: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; }
-        .file-list { max-height: 150px; overflow-y: auto; }
+        .dump-section { background: #080808; border: 1px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 20px; }
         .file-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #1a1a1a; font-size: 11px; }
-        .file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
-        .download-link { color: #000; background: #00ff41; text-decoration: none; padding: 4px 8px; border-radius: 3px; font-weight: bold; font-size: 10px; }
+        .download-link { color: #000; background: #00ff41; text-decoration: none; padding: 4px 8px; border-radius: 3px; font-weight: bold; }
 
-        .cmd-line { color: #888; margin-top: 10px; border-left: 2px solid #00ff41; padding-left: 5px; }
-        pre { white-space: pre-wrap; word-wrap: break-word; margin: 5px 0; color: #ccc; }
-
-        .footer-section {
-            text-align: center;
-            background-color: #000;
-            color: #008f11; 
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            border-top: 1px dashed #333; 
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            padding: 10px 0;
-            margin-top: auto;
-        }
-        .footer-section span { font-weight: bold; }
+        .cmd-line { color: #888; margin-top: 10px; border-left: 2px solid #00ff41; padding-left: 5px; font-weight: bold; }
+        .cmd-line.sys { border-left-color: #ff9900; color: #ff9900; }
+        pre { white-space: pre-wrap; word-wrap: break-word; color: #ccc; font-size: 11px; margin: 5px 0; }
+        
+        .footer-section { text-align: center; color: #008f11; font-size: 12px; border-top: 1px dashed #333; padding: 10px 0; margin-top: auto; }
     </style>
 </head>
 <body>
-    <div style="font-size: 10px; margin-bottom: 5px;">PROXGATE | PORTABLE RFID BRIDGE</div>
-    
-    <div id="terminal">--- System Ready ---</div>
+    <div style="font-size: 15px; margin-bottom: 5px; opacity: 0.7; text-align:center;">PROXGATE v3</div>
+
+    <div id="term-pm3" class="console active-console">--- Proxmark3 Interface Ready ---</div>
+    <div id="term-sys" class="console">--- Linux System Shell Ready ---</div>
 
     <div class="input-area">
-        <input type="text" id="cmdInput" placeholder="Type Something 0_=" autocomplete="off">
-        <button class="btn-enter" onclick="send()">Enter</button>
+        <button id="modeBtn" type="button" class="mode-toggle mode-pm3" onclick="toggleMode()">PM3</button>
+        <input type="text" id="cmdInput" placeholder="Proxmark3 cmd..." autocomplete="off">
+        <button class="btn-enter" type="button" onclick="send()">Enter</button>
     </div>
 
-    <div class="button-grid">
-        <button class="macro-btn" onclick="quickCmd('hw status')">HW Status - Info & Voltage</button>
-        <button class="macro-btn" onclick="quickCmd('hw tune')">Tune Ant - Antenna Tuning</button>
-        <button class="macro-btn" onclick="quickCmd('lf search')">LF Search - 125kHz Tags</button>
-        <button class="macro-btn" onclick="quickCmd('hf search')">HF Search - 13.56MHz Tags</button>
-        <button class="macro-btn" onclick="quickCmd('lf hid read')">LF HID Read - Office Cards</button>
-        <button class="macro-btn" onclick="quickCmd('lf em 410x read')">LF EM Read - Blue Fobs</button>
-        <button class="macro-btn" onclick="quickCmd('hf 14a info')">14A Info - ISO14443A</button>
-        <button class="macro-btn" onclick="quickCmd('hf mf autopwn')">MF Autopwn - Auto Exploit</button>
-        <button class="macro-btn" onclick="quickCmd('hf mf chk * ?')">MF Check - Weak Keys</button>
-        <button class="macro-btn" onclick="quickCmd('hf iclass info')">iClass Info - HID iClass</button>
+    <div class="button-grid" id="macroGrid">
+        <button class="macro-btn" onclick="quickCmd('hw status')">HW Status</button>
+        <button class="macro-btn" onclick="quickCmd('hw tune')">Tune Ant</button>
+        <button class="macro-btn" onclick="quickCmd('lf search')">LF Search</button>
+        <button class="macro-btn" onclick="quickCmd('hf search')">HF Search</button>
+        <button class="macro-btn" onclick="quickCmd('lf hid read')">LF HID Read</button>
+        <button class="macro-btn" onclick="quickCmd('lf em 410x read')">LF EM Read</button>
+        <button class="macro-btn" onclick="quickCmd('hf 14a info')">14A Info</button>
+        <button class="macro-btn" onclick="quickCmd('hf mf autopwn')">MF Autopwn</button>
+        <button class="macro-btn" onclick="quickCmd('hf mf chk * ?')">MF Check</button>
+        <button class="macro-btn" onclick="quickCmd('hf iclass info')">iClass Info</button>
     </div>
 
     <div class="dump-section">
-        <div class="dump-header">
-            <span>SAVED DUMPS</span>
-            <span onclick="refreshFiles()" style="cursor:pointer; color:#00ff41;">[REFRESH]</span>
-        </div>
-        <div id="files" class="file-list">
-            <div style="color:#555; font-size:10px;">No files found yet...</div>
-        </div>
+        <div style="font-size:11px; margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px; color:#fff">SAVED DUMPS <span onclick="refreshFiles()" style="float:right; color:#0f0; cursor:pointer">[REFRESH]</span></div>
+        <div id="files"></div>
     </div>
 
-    <footer class="footer-section">
-        <p>Made with 💖 and responsibility by <span>session.exe</span></p>
-    </footer>
+    <footer class="footer-section">Made with 💖 by <span>session.exe</span></footer>
 
     <script>
-        const consoleDiv = document.getElementById('terminal');
+        const termPm3 = document.getElementById('term-pm3');
+        const termSys = document.getElementById('term-sys');
         const input = document.getElementById('cmdInput');
-        const fileDiv = document.getElementById('files');
+        const modeBtn = document.getElementById('modeBtn');
+        let currentMode = 'pm3';
+
+        function toggleMode() {
+            if (currentMode === 'pm3') {
+                currentMode = 'sys';
+                modeBtn.innerText = 'SYS';
+                modeBtn.className = 'mode-toggle mode-sys';
+                termPm3.classList.remove('active-console');
+                termSys.classList.add('active-console');
+                input.placeholder = "System (ls, reboot)...";
+            } else {
+                currentMode = 'pm3';
+                modeBtn.innerText = 'PM3';
+                modeBtn.className = 'mode-toggle mode-pm3';
+                termSys.classList.remove('active-console');
+                termPm3.classList.add('active-console');
+                input.placeholder = "Proxmark3 cmd...";
+            }
+        }
 
         function quickCmd(cmd) {
+            if(currentMode !== 'pm3') toggleMode();
             input.value = cmd;
             send();
         }
 
+        async function send() {
+            const cmd = input.value.trim();
+            if(!cmd) return;
+            
+            if(cmd === 'clear') {
+                const activeTerm = currentMode === 'pm3' ? termPm3 : termSys;
+                activeTerm.innerHTML = `--- ${currentMode === 'pm3' ? 'Proxmark3' : 'System'} Console Cleared ---`;
+                input.value = '';
+                return;
+            }
+
+            const activeTerm = currentMode === 'pm3' ? termPm3 : termSys;
+            const endpoint = currentMode === 'pm3' ? '/exec' : '/shell';
+            
+            activeTerm.innerHTML += `<div class="cmd-line ${currentMode === 'sys' ? 'sys' : ''}">> ${cmd}</div>`;
+            input.value = '';
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({cmd: cmd})
+                });
+                const data = await response.json();
+                activeTerm.innerHTML += `<pre>${data.output}</pre>`;
+                if(data.cwd) activeTerm.innerHTML += `<div style="font-size:9px; color:#555; margin-top:-5px; margin-bottom:10px;">CWD: ${data.cwd}</div>`;
+            } catch (e) {
+                activeTerm.innerHTML += `<pre style="color:red">Error: ${e}</pre>`;
+            }
+            activeTerm.scrollTop = activeTerm.scrollHeight;
+            if(currentMode === 'pm3') setTimeout(refreshFiles, 1000);
+        }
+
         async function refreshFiles() {
             try {
-                const response = await fetch('/files');
-                const files = await response.json();
-                if (files.length === 0) {
-                    fileDiv.innerHTML = '<div style="color:#555; font-size:10px;">No files found yet...</div>';
-                    return;
-                }
-                fileDiv.innerHTML = files.map(f => `
+                const r = await fetch('/files');
+                const files = await r.json();
+                document.getElementById('files').innerHTML = files.map(f => `
                     <div class="file-item">
-                        <span class="file-name">${f}</span>
+                        <span>${f}</span>
                         <a href="/download/${f}" class="download-link" download>GET</a>
                     </div>
                 `).join('');
-            } catch (e) {
-                console.error("Error refreshing files:", e);
-            }
-        }
-
-        async function send() {
-            const cmd = input.value;
-            if(!cmd) return;
-            
-            consoleDiv.innerHTML += `<div class="cmd-line">> ${cmd}</div>`;
-            consoleDiv.scrollTop = consoleDiv.scrollHeight;
-            input.value = '';
-
-            const response = await fetch('/exec', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({cmd: cmd})
-            });
-            const data = await response.json();
-            consoleDiv.innerHTML += `<pre>${data.output}</pre>`;
-            consoleDiv.scrollTop = consoleDiv.scrollHeight;
-
-            setTimeout(refreshFiles, 1000);
+            } catch(e) { console.log(e); }
         }
 
         input.addEventListener("keypress", (e) => { if(e.key === "Enter") send(); });
-
         window.onload = refreshFiles;
     </script>
 </body>
