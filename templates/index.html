@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ProxGate</title>
+    <style>
+        body { background: #000; color: #00ff41; font-family: 'Courier New', monospace; margin: 0; padding: 10px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
+        
+        #terminal { flex-grow: 1; background: #050505; border: 1px solid #554b4b; overflow-y: auto; padding: 10px; font-size: 12px; border-radius: 8px; margin-bottom: 10px; }
+        
+        .input-area { display: flex; gap: 5px; margin-bottom: 10px; }
+        input { flex-grow: 1; background: #111; border: 1px solid #00ff41; color: #fff; padding: 12px; border-radius: 5px; outline: none; }
+        .btn-enter { background: #00ff41; color: #000; border: none; padding: 0 20px; font-weight: bold; border-radius: 5px; }
+
+        .button-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 5px; }
+        .macro-btn { background: #111; border: 1px solid #333; color: #00ff41; padding: 10px; font-size: 11px; border-radius: 5px; font-weight: bold; }
+        .macro-btn:active { background: #00ff41; color: #000; }
+
+        .cmd-line { color: #888; margin-top: 10px; border-left: 2px solid #00ff41; padding-left: 5px; }
+        pre { white-space: pre-wrap; word-wrap: break-word; margin: 5px 0; color: #ccc; }
+
+        .footer-section {
+            text-align: center;
+            background-color: #000;
+            color: #008f11; 
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            border-top: 1px dashed #333; 
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .footer-section span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div style="font-size: 10px; margin-bottom: 5px;">PROXGATE | PORTABLE RFID BRIDGE</div>
+    
+    <div id="terminal">--- System Ready ---</div>
+
+    <div class="input-area">
+        <input type="text" id="cmdInput" placeholder="Type Something 0_=" autocomplete="off">
+        <button class="btn-enter" onclick="send()">Enter</button>
+    </div>
+
+    <div class="button-grid">
+        <button class="macro-btn" onclick="quickCmd('hw status')">HW Status - Checks if the PM3 is alive and displays voltage levels.</button>
+        <button class="macro-btn" onclick="quickCmd('hw tune')">Tune Ant - Tune the antenna for optimal performance.</button>
+        <button class="macro-btn" onclick="quickCmd('lf search')">LF Search - Automatic search for 125kHz tags.</button>
+        <button class="macro-btn" onclick="quickCmd('hf search')">HF Search - Automatic search for 13.56MHz tags.</button>
+        <button class="macro-btn" onclick="quickCmd('lf hid read')">LF HID Read - Reads HID Prox cards (common in offices).</button>
+        <button class="macro-btn" onclick="quickCmd('lf em 410x read')">LF EM Read - Reads typical blue Chinese keyfobs (EM410x).</button>
+        <button class="macro-btn" onclick="quickCmd('hf 14a info')">14A Info - Detailed information on ISO14443A cards.</button>
+        <button class="macro-btn" onclick="quickCmd('hf mf autopwn')">MF Autopwn - Attempts to automatically exploit Mifare Classic cards.</button>
+        <button class="macro-btn" onclick="quickCmd('hf mf chk * ?')">MF Check - Checks for weak keys on Mifare Classic cards.</button>
+        <button class="macro-btn" onclick="quickCmd('hf iclass info')">iClass Info - Detailed information on iClass cards.</button>
+    </div>
+
+    <script>
+        const consoleDiv = document.getElementById('terminal');
+        const input = document.getElementById('cmdInput');
+
+        function quickCmd(cmd) {
+            input.value = cmd;
+            send();
+        }
+
+        async function send() {
+            const cmd = input.value;
+            if(!cmd) return;
+            
+            consoleDiv.innerHTML += `<div class="cmd-line">> ${cmd}</div>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            input.value = '';
+
+            const response = await fetch('/exec', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({cmd: cmd})
+            });
+            const data = await response.json();
+            consoleDiv.innerHTML += `<pre>${data.output}</pre>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        input.addEventListener("keypress", (e) => { if(e.key === "Enter") send(); });
+    </script>
+
+</body>
+<footer class="footer-section">
+    <p>Made with 💖 and responsibility by <span>session.exe</span></p>
+</footer>
+</html>
