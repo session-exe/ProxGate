@@ -30,7 +30,7 @@
 Simply clone this repository to your Raspberry Pi and run the automated installer:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ProxGate.git
+git clone https://github.com/session-exe/ProxGate.git
 cd ProxGate
 chmod +x install.sh
 ./install.sh
